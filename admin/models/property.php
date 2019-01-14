@@ -162,6 +162,7 @@ class JeaModelProperty extends JModelAdmin
 			$imageNames[$row->name] = $row->name;
 		}
 
+		$baseDir =  JPATH_ROOT . '/images/com_jea';
 		$baseUploadDir = JPATH_ROOT . '/images/com_jea/images';
 		$validExtensions = array('jpg', 'JPG', 'jpeg', 'JPEG', 'gif', 'GIF', 'png', 'PNG');
 
@@ -239,6 +240,9 @@ class JeaModelProperty extends JModelAdmin
 					{
 						JFile::delete($removeFile);
 					}
+
+					JFile::delete($baseDir . '/thumb-medium/' . $item->id.'-'.$filename);
+					JFile::delete($baseDir . '/thumb-min/' . $item->id.'-'.$filename);
 				}
 			}
 		}
@@ -320,6 +324,22 @@ class JeaModelProperty extends JModelAdmin
 	 */
 	public function delete(&$pks)
 	{
+		$thumbs = array();
+
+		// retrieve data before deleting it
+		foreach ($pks as $id)
+		{
+			$db = $this->getDbo();
+			$db->setQuery('SELECT images FROM #__jea_properties' . ' WHERE id =' . $id );
+			$result = $db->loadResult();
+			$images = json_decode($result);
+			foreach ($images as $img)
+			{
+				$thumbs[] = $id.'-'.$img->name;
+			}
+
+
+		}
 		if (parent::delete($pks))
 		{
 			// Remove images folder
@@ -328,6 +348,12 @@ class JeaModelProperty extends JModelAdmin
 				if (JFolder::exists(JPATH_ROOT . '/images/com_jea/images/' . $id))
 				{
 					JFolder::delete(JPATH_ROOT . '/images/com_jea/images/' . $id);
+				}
+				//remove thumbs
+				foreach ($thumbs as $thumb)
+				{
+					JFile::delete(JPATH_ROOT . '/images/com_jea/thumb-medium/' . $thumb);
+					JFile::delete(JPATH_ROOT . '/images/com_jea/thumb-min/' . $thumb);
 				}
 			}
 		}
