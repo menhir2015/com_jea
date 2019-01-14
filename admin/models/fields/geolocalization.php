@@ -162,7 +162,7 @@ class JFormFieldGeolocalization extends JFormField
 		);
 
 		JFactory::getDocument()->addScript(
-			'http://maps.google.com/maps/api/js?key=' . $params->get('googlemap_api_key') . '&language=' . $lang . '&region=' . $region
+			'https://maps.google.com/maps/api/js?key=' . $params->get('googlemap_api_key') . '&language=' . $lang . '&region=' . $region
 		);
 
 		return $ouptut;
